@@ -1,0 +1,48 @@
+IamAuthenticator authenticator = new IamAuthenticator(
+    apikey: "{apikey}"
+  );
+
+AssistantService assistant = new AssistantService("2021-06-14", authenticator);
+assistant.SetServiceUrl("{url}");
+
+var result = assistant.CreateSession(
+    assistantId: "{environmentId}"
+    );
+
+Console.WriteLine(result.Response);
+
+var sessionId = result.Result.SessionId;
+
+//Remember to delete ({}) as we do not need them 
+//API Key can be found on the IBM cloud website in managing the Watson assistant which is: 0LTlYh3-Kt6uIe1eQ8ytijsuzdnEKq_jUs8pff49fXeM
+//URL can be found in the same place which is: https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/9105472d-0990-4acc-a349-661d4607d608
+//Remember to instal IBM assistant V2 in Nuggets packages
+
+
+            IamAuthenticator authenticator = new IamAuthenticator(
+            apikey: "0LTlYh3-Kt6uIe1eQ8ytijsuzdnEKq_jUs8pff49fXeM"
+            );
+
+            AssistantService assistant = new AssistantService("2023-01-17", authenticator);
+            assistant.SetServiceUrl("https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/9105472d-0990-4acc-a349-661d4607d608");
+
+            var result = assistant.CreateSession(
+            assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd"
+            );
+
+            Console.WriteLine(result.Response);
+
+            var sessionId = result.Result.SessionId;
+
+
+
+            var result2 = assistant.Message(
+             assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd",
+             sessionId ,
+             input: new MessageInput()
+             {
+                 Text = "I want to learn about cyber security"
+             }
+                     );
+
+            Console.WriteLine(result2.Response); 
