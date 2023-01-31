@@ -8,6 +8,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Simple_Shu_Asistamt
 {
@@ -25,7 +27,7 @@ namespace Simple_Shu_Asistamt
         {
 
 
-
+            string userQuery = " ";
             IamAuthenticator authenticator = new IamAuthenticator(
             apikey: "0LTlYh3-Kt6uIe1eQ8ytijsuzdnEKq_jUs8pff49fXeM"
             );
@@ -37,22 +39,32 @@ namespace Simple_Shu_Asistamt
             assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd"
             );
 
-            Console.WriteLine(result.Response);
+           
 
             var sessionId = result.Result.SessionId;
 
 
 
-            var result2 = assistant.Message(
-             assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd",
-             sessionId ,
-             input: new MessageInput()
-             {
-                 Text = "I want to learn about cyber security"
-             }
-                     );
+            while(userQuery != "0")
+            {
+                Console.WriteLine("Please Ask me a question :");
+                userQuery = Console.ReadLine();
 
-            Console.WriteLine(result2.Response);
+                var result2 = assistant.Message(
+                 assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd",
+                 sessionId,
+                 input: new MessageInput()
+                 {
+                     Text = userQuery
+                 }
+                 );
+
+                JObject output = JObject.Parse(result2.Response);
+                string txt = (string)output["output"]["generic"][0]["text"];
+                txt = txt.Replace("\n", "\n").Replace("- ", "");
+                Console.WriteLine(txt);
+            }
+           
         }
     }
 }
