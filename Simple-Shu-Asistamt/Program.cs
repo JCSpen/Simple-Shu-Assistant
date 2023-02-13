@@ -10,21 +10,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+using System.Reflection.Emit;
+using IBM.Cloud.SDK.Core.Http;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Simple_Shu_Asistamt
 {
     internal class Program
     {
         // Simple Shu assistant
-            //"apikey": "0LTlYh3-Kt6uIe1eQ8ytijsuzdnEKq_jUs8pff49fXeM",
-               //"iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:conversation:eu-gb:a/f5532d34a1324f0fa245f2c4399ae5ea:9105472d-0990-4acc-a349-661d4607d608:resource-key:c39c4170-0c37-48ad-bc10-a2bacb61cfb1",
-            //"iam_apikey_name": "Auto-generated service credentials",
-  //"iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
-  //"iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/f5532d34a1324f0fa245f2c4399ae5ea::serviceid:ServiceId-455ef5af-5f8b-49ca-a533-7cbf3f807127",
-  //"url": "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/9105472d-0990-4acc-a349-661d4607d608"
+        //"apikey": "0LTlYh3-Kt6uIe1eQ8ytijsuzdnEKq_jUs8pff49fXeM",
+        //"iam_apikey_description": "Auto-generated for key crn:v1:bluemix:public:conversation:eu-gb:a/f5532d34a1324f0fa245f2c4399ae5ea:9105472d-0990-4acc-a349-661d4607d608:resource-key:c39c4170-0c37-48ad-bc10-a2bacb61cfb1",
+        //"iam_apikey_name": "Auto-generated service credentials",
+        //"iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+        //"iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/f5532d34a1324f0fa245f2c4399ae5ea::serviceid:ServiceId-455ef5af-5f8b-49ca-a533-7cbf3f807127",
+        //"url": "https://api.eu-gb.assistant.watson.cloud.ibm.com/instances/9105472d-0990-4acc-a349-661d4607d608"
 
-    static void Main(string[] args)
+        static void Main(string[] args)
         {
+            // extract the source titles and links
 
 
             string userQuery = " ";
@@ -38,15 +43,19 @@ namespace Simple_Shu_Asistamt
             var result = assistant.CreateSession(
             assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd"
             );
+            List<string> sourceTitles = new List<string>();
+            List<string> sourceLinks = new List<string>();
+            List<string> lables = new List<string>();
 
-           
 
             var sessionId = result.Result.SessionId;
 
 
 
-            while(userQuery != "0")
+            while (userQuery != "0")
             {
+                
+                string mainTitle = "";
                 Console.WriteLine("Please Ask me a question :");
                 userQuery = Console.ReadLine();
 
@@ -58,13 +67,104 @@ namespace Simple_Shu_Asistamt
                      Text = userQuery
                  }
                  );
+                //JObject output = JObject.Parse(result2.Response);
+                //string txt = (string)output["output"]["generic"][0]["text"];
+                //txt = txt.Replace("\n", "\n").Replace("- ", "");
+                //var ouput = new {result2.Response};  // replace with the actual output
 
-                JObject output = JObject.Parse(result2.Response);
-                string txt = (string)output["output"]["generic"][0]["text"];
-                txt = txt.Replace("\n", "\n").Replace("- ", "");
-                Console.WriteLine(txt);
+
+
+                // parse the JSON response
+                JObject response = JObject.Parse(result2.Response);
+                Console.WriteLine(result2.Response);
+                // extract the main title
+
+                mainTitle = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+
+
+                if (mainTitle == "")
+                {
+                    mainTitle = response["output"]["generic"][0]["title"].Value<string>();
+
+                }
+                if (mainTitle != null && mainTitle.Length > 20)
+                {
+                    int index = mainTitle.IndexOf(':');
+
+                    mainTitle = index >= 0 ? mainTitle.Substring(0, index) : mainTitle;
+                }
+
+
+
+
+                linkSeprater(response);
+
+                //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
+
+                // print the results
+                Console.WriteLine(mainTitle);
+                Console.WriteLine();
+                Console.WriteLine();
+
+                for (int i = 0; i < sourceTitles.Count; i++)
+                {
+                    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
+                }
+                JArray suggestionArr = response?["output"]?["generic"]?[0]?["suggestions"] as JArray;
+                JArray optionsArr = response?["output"]?["generic"]?[0]?["options"] as JArray;
+                if (suggestionArr != null)
+                {
+
+                    foreach (JObject suggestion in suggestionArr)
+                    {
+                        string label = suggestion["label"].Value<string>();
+                        lables.Add(label);
+                    }
+                }
+                if (optionsArr != null)
+                {
+
+                    foreach (JObject option in optionsArr)
+                    {
+                        string label = option["label"].Value<string>();
+                        lables.Add(label);
+                    }
+                }
+                if (lables.Count() != 0)
+                {
+
+                    for (int i = 0; i < lables.Count; i++)
+                    {
+                        Console.WriteLine(lables[i]);
+                    }
+                }
+
+
             }
-           
+            void linkSeprater(JObject response)
+            {
+                for (int i = 0; i < response["output"]["generic"].Count(); i++)
+                {
+                    string inputText = response?["output"]?["generic"]?[i]?["text"]?.ToString();
+                    string linkPattern = @"(https?://[^\s]+)";
+                    Regex regex = new Regex(linkPattern);
+                    if (inputText != null)
+                    {
+                        if (regex.IsMatch(inputText))
+                        {
+                            string pattern = @"\[(.*?)\]\((.*?)\)";
+                            Match match = Regex.Match(inputText, pattern);
+                            string title = match.Groups[1].Value;
+                            string link = match.Groups[2].Value;
+
+                            sourceTitles.Add(title);
+                            sourceLinks.Add(link);
+                        }
+                    }
+
+                }
+            }
         }
     }
 }
+
