@@ -49,8 +49,8 @@ namespace Simple_Shu_Asistamt
             bool resolved = false;
 
             var sessionId = result.Result.SessionId;
+            string titleOfText = "";
             string mainTitle = "";
-
 
 
             while (userQuery != "0")
@@ -80,60 +80,67 @@ namespace Simple_Shu_Asistamt
                 //Console.WriteLine(result2.Response);
                 // extract the main title
 
-                mainTitle = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+                titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
 
 
-                if (mainTitle == "")
+               mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+               
+                //for (int i = 0; i < response["output"]["generic"].Count(); i++)
+                //{
+
+                //     titleOfText = (string)suggestions[0]["value"]["input"]["suggestion_id"];
+                //     lables.Add((string)suggestions[0]["label"]);
+                //    titleOfText = response["output"]["generic"][i]["title"].Value<string>();
+                //}
+
+                if (titleOfText != null && titleOfText.Length > 20)
                 {
-                    mainTitle = response["output"]["generic"][0]["title"].Value<string>();
+                    int index = titleOfText.IndexOf(':');
 
-                }
-                if (mainTitle != null && mainTitle.Length > 20)
-                {
-                    int index = mainTitle.IndexOf(':');
-
-                    mainTitle = index >= 0 ? mainTitle.Substring(0, index) : mainTitle;
+                    titleOfText = index >= 0 ? titleOfText.Substring(0, index) : titleOfText;
                 }
 
 
 
-
+                Console.WriteLine(mainTitle);
+                Console.WriteLine(titleOfText);
+                Console.WriteLine();
+                Console.WriteLine();
                 linkSeprater(response);
 
                 //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
 
                 // print the results
-                Console.WriteLine(mainTitle);
-                Console.WriteLine();
-                Console.WriteLine();
+               
 
-                for (int i = 0; i < sourceTitles.Count; i++)
-                {
-                    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
-                }
+                //for (int i = 0; i < sourceTitles.Count; i++)
+                //{
+                //    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
+                //}
                 try
                 {
 
                     JArray suggestionArr = response?["output"]?["generic"]?[0]?["suggestions"] as JArray;
                     JArray optionsArr = response?["output"]?["generic"]?[1]?["options"] as JArray;
+
                     if (suggestionArr != null)
                     {
-
                         foreach (JObject suggestion in suggestionArr)
                         {
-                            string label = suggestion["label"].Value<string>();
-                            lables.Add(label);
+                            string label = suggestion["label"].ToString();
+                            Console.WriteLine(label);
                         }
+
                     }
                     if (optionsArr != null)
                     {
                         foreach (JToken option in optionsArr)
                         {
                             string extractedText = (string)option["label"];
-                            lables.Add(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
+                           Console.WriteLine(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
                         }
                     }
-                    printLables();
+                    //printLables();
                 }
                 catch (Exception e)
                 {
@@ -159,8 +166,8 @@ namespace Simple_Shu_Asistamt
                         {
                             string link = Regex.Match(match.Value, linkPattern).Groups[2].Value;
                             string title = match.Groups[1].Value;
-                            sourceTitles.Add(title);
-                            sourceLinks.Add(link);
+                            Console.WriteLine(title);
+                            Console.WriteLine(link);
                         }
                     }
 
