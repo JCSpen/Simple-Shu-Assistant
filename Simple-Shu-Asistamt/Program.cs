@@ -46,18 +46,19 @@ namespace Simple_Shu_Asistamt
             List<string> sourceTitles = new List<string>();
             List<string> sourceLinks = new List<string>();
             List<string> lables = new List<string>();
-
+            bool resolved = false;
 
             var sessionId = result.Result.SessionId;
+            string mainTitle = "";
 
 
 
             while (userQuery != "0")
             {
-                
-                string mainTitle = "";
+
                 Console.WriteLine("Please Ask me a question :");
                 userQuery = Console.ReadLine();
+
 
                 var result2 = assistant.Message(
                  assistantId: "74e78bca-b878-4493-92ad-f31e048b92cd",
@@ -76,7 +77,7 @@ namespace Simple_Shu_Asistamt
 
                 // parse the JSON response
                 JObject response = JObject.Parse(result2.Response);
-                Console.WriteLine(result2.Response);
+                //Console.WriteLine(result2.Response);
                 // extract the main title
 
                 mainTitle = response?["output"]?["generic"]?[0]?["text"]?.ToString();
@@ -110,34 +111,37 @@ namespace Simple_Shu_Asistamt
                 {
                     Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
                 }
-                JArray suggestionArr = response?["output"]?["generic"]?[0]?["suggestions"] as JArray;
-                JArray optionsArr = response?["output"]?["generic"]?[0]?["options"] as JArray;
-                if (suggestionArr != null)
+                try
                 {
 
-                    foreach (JObject suggestion in suggestionArr)
+                    JArray suggestionArr = response?["output"]?["generic"]?[0]?["suggestions"] as JArray;
+                    JArray optionsArr = response?["output"]?["generic"]?[1]?["options"] as JArray;
+                    if (suggestionArr != null)
                     {
-                        string label = suggestion["label"].Value<string>();
-                        lables.Add(label);
+
+                        foreach (JObject suggestion in suggestionArr)
+                        {
+                            string label = suggestion["label"].Value<string>();
+                            lables.Add(label);
+                        }
                     }
+                    if (optionsArr != null)
+                    {
+                        foreach (JToken option in optionsArr)
+                        {
+                            string extractedText = (string)option["label"];
+                            lables.Add(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
+                        }
+                    }
+                    printLables();
                 }
-                if (optionsArr != null)
+                catch (Exception e)
                 {
 
-                    foreach (JObject option in optionsArr)
-                    {
-                        string label = option["label"].Value<string>();
-                        lables.Add(label);
-                    }
                 }
-                if (lables.Count() != 0)
-                {
 
-                    for (int i = 0; i < lables.Count; i++)
-                    {
-                        Console.WriteLine(lables[i]);
-                    }
-                }
+
+
 
 
             }
@@ -146,22 +150,31 @@ namespace Simple_Shu_Asistamt
                 for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 {
                     string inputText = response?["output"]?["generic"]?[i]?["text"]?.ToString();
-                    string linkPattern = @"(https?://[^\s]+)";
+                    string linkPattern = @"\[(.*?)\]\((.*?)\)";
                     Regex regex = new Regex(linkPattern);
                     if (inputText != null)
                     {
-                        if (regex.IsMatch(inputText))
+                        MatchCollection matches = regex.Matches(inputText);
+                        foreach (Match match in matches)
                         {
-                            string pattern = @"\[(.*?)\]\((.*?)\)";
-                            Match match = Regex.Match(inputText, pattern);
+                            string link = Regex.Match(match.Value, linkPattern).Groups[2].Value;
                             string title = match.Groups[1].Value;
-                            string link = match.Groups[2].Value;
-
                             sourceTitles.Add(title);
                             sourceLinks.Add(link);
                         }
                     }
 
+                }
+            }
+            void printLables()
+            {
+                if (lables.Count() != 0)
+                {
+
+                    for (int i = 0; i < lables.Count; i++)
+                    {
+                        Console.WriteLine(lables[i]);
+                    }
                 }
             }
         }
