@@ -96,22 +96,14 @@ namespace Simple_Shu_Asistamt
                 //Finds links by title length
                 if (titleOfText != null && titleOfText.Length > 20) 
 
-                //Console.WriteLine(result2.Response);
-                // extract the main title
+                
 
                 titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
 
 
                 mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
 
-                //for (int i = 0; i < response["output"]["generic"].Count(); i++)
-                //{
-
-                //     titleOfText = (string)suggestions[0]["value"]["input"]["suggestion_id"];
-                //     lables.Add((string)suggestions[0]["label"]);
-                //    titleOfText = response["output"]["generic"][i]["title"].Value<string>();
-                //}
-
+                
                 if (titleOfText != null && titleOfText.Length > 20)
 
                 {
@@ -127,18 +119,7 @@ namespace Simple_Shu_Asistamt
                 linkSeprater(response);
 
                 //Fetches values from JSON Response
-                try 
-
-
-                //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
-
-                // print the results
-
-
-                //for (int i = 0; i < sourceTitles.Count; i++)
-                //{
-                //    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
-                //}
+               
                 try
 
                 {
