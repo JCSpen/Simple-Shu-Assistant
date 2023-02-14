@@ -48,7 +48,7 @@ namespace Simple_Shu_Asistamt
             List<string> sourceLinks = new List<string>();
             List<string> lables = new List<string>();
             bool resolved = false;
-
+            JArray optionsArray = null;
             var sessionId = result.Result.SessionId;
             string titleOfText = "";
             string mainTitle = "";
@@ -84,8 +84,8 @@ namespace Simple_Shu_Asistamt
                 titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
 
 
-               mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
-               
+                mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+
                 //for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 //{
 
@@ -105,13 +105,12 @@ namespace Simple_Shu_Asistamt
 
                 Console.WriteLine(mainTitle);
                 Console.WriteLine(titleOfText);
-                Console.WriteLine();
                 linkSeprater(response);
 
                 //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
 
                 // print the results
-               
+
 
                 //for (int i = 0; i < sourceTitles.Count; i++)
                 //{
@@ -119,27 +118,41 @@ namespace Simple_Shu_Asistamt
                 //}
                 try
                 {
-                   
-                   
+
+
                     for (int i = 0; i < response?["output"]?["generic"]?[0]?["suggestions"]?.Count(); i++)
                     {
+                        if (!resolved)
+                        {
+                            resolved = true;
+                            Console.WriteLine("Select one of the following options");
+                            Console.WriteLine();
+                        }
                         string lablles = response?["output"]?["generic"]?[0]?["suggestions"]?[i]?["label"].ToString();
                         Console.WriteLine(lablles);
+                        Console.WriteLine();
                     }
-                    
-                    JArray optionsArr = response?["output"]?["generic"]?[1]?["options"] as JArray;
 
-                    
-                    if (optionsArr != null)
+                    for (int i = 0; i < response?["output"]?["generic"]?.Count(); i++)
                     {
-                        foreach (JToken option in optionsArr)
+                        optionsArray = response?["output"]?["generic"]?[i]?["options"] as JArray;
+                        if (optionsArray != null)
                         {
-                            string extractedText = (string)option["label"];
-                           Console.WriteLine(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
+                            JArray textsArray = response?["output"]?["generic"]?[i]?["text"] as JArray;
+                            Console.WriteLine("Did this help you?");
+                            foreach (JToken option in optionsArray)
+                            {
+                                string extractedText = (string)option["label"];
+                                Console.WriteLine(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
+                            }
+
                         }
+
                     }
-                    //printLables();
                 }
+
+                
+
                 catch (Exception e)
                 {
 
@@ -168,14 +181,13 @@ namespace Simple_Shu_Asistamt
                             Console.WriteLine(link);
                         }
                     }
-
                 }
             }
             void printLables()
             {
                 if (lables.Count() != 0)
                 {
-
+                    Console.WriteLine("Select one of the followwing options");
                     for (int i = 0; i < lables.Count; i++)
                     {
                         Console.WriteLine(lables[i]);
