@@ -15,8 +15,6 @@ using System.Reflection.Emit;
 using IBM.Cloud.SDK.Core.Http;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
-using Microsoft.Win32.SafeHandles;
-using System.Runtime.CompilerServices;
 
 namespace Simple_Shu_Asistamt
 {
@@ -54,11 +52,11 @@ namespace Simple_Shu_Asistamt
             var sessionId = result.Result.SessionId;
             string titleOfText = "";
             string mainTitle = "";
-            bool overrideReset = false;
 
 
             while (userQuery != "0")
             {
+
                 //Clears Console and outputs message when exception is found
                 if (overrideReset)
                 {
@@ -66,6 +64,7 @@ namespace Simple_Shu_Asistamt
                     Console.WriteLine("Sorry I did not catch that please try again!");
                     overrideReset= false;
                 }
+
                 Console.WriteLine("Chat with me : \n");
                 userQuery = Console.ReadLine();
 
@@ -80,6 +79,7 @@ namespace Simple_Shu_Asistamt
                  );
                 // parse the JSON response
                 JObject response = JObject.Parse(result2.Response);
+
                 //Fetch values from response
                 try
                 {
@@ -95,6 +95,25 @@ namespace Simple_Shu_Asistamt
                 }
                 //Finds links by title length
                 if (titleOfText != null && titleOfText.Length > 20) 
+
+                //Console.WriteLine(result2.Response);
+                // extract the main title
+
+                titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+
+
+                mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+
+                //for (int i = 0; i < response["output"]["generic"].Count(); i++)
+                //{
+
+                //     titleOfText = (string)suggestions[0]["value"]["input"]["suggestion_id"];
+                //     lables.Add((string)suggestions[0]["label"]);
+                //    titleOfText = response["output"]["generic"][i]["title"].Value<string>();
+                //}
+
+                if (titleOfText != null && titleOfText.Length > 20)
+
                 {
                     int index = titleOfText.IndexOf(':');
 
@@ -106,8 +125,22 @@ namespace Simple_Shu_Asistamt
                 Console.WriteLine(mainTitle);
                 Console.WriteLine(titleOfText);
                 linkSeprater(response);
+
                 //Fetches values from JSON Response
                 try 
+
+
+                //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
+
+                // print the results
+
+
+                //for (int i = 0; i < sourceTitles.Count; i++)
+                //{
+                //    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
+                //}
+                try
+
                 {
 
                     resolved = false;
@@ -166,6 +199,7 @@ namespace Simple_Shu_Asistamt
 
 
             }
+
             //Formats links and outputs it with the title
             void linkSeprater(JObject response) 
             {
