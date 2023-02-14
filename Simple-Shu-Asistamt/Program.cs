@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Reflection.Emit;
 using IBM.Cloud.SDK.Core.Http;
 using static System.Net.Mime.MediaTypeNames;
+using System.Text.Json;
 
 namespace Simple_Shu_Asistamt
 {
@@ -56,7 +57,7 @@ namespace Simple_Shu_Asistamt
             while (userQuery != "0")
             {
 
-                Console.WriteLine("Please Ask me a question :");
+                Console.WriteLine("Chat with me :");
                 userQuery = Console.ReadLine();
 
 
@@ -105,7 +106,6 @@ namespace Simple_Shu_Asistamt
                 Console.WriteLine(mainTitle);
                 Console.WriteLine(titleOfText);
                 Console.WriteLine();
-                Console.WriteLine();
                 linkSeprater(response);
 
                 //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
@@ -119,19 +119,17 @@ namespace Simple_Shu_Asistamt
                 //}
                 try
                 {
-
-                    JArray suggestionArr = response?["output"]?["generic"]?[0]?["suggestions"] as JArray;
+                   
+                   
+                    for (int i = 0; i < response?["output"]?["generic"]?[0]?["suggestions"]?.Count(); i++)
+                    {
+                        string lablles = response?["output"]?["generic"]?[0]?["suggestions"]?[i]?["label"].ToString();
+                        Console.WriteLine(lablles);
+                    }
+                    
                     JArray optionsArr = response?["output"]?["generic"]?[1]?["options"] as JArray;
 
-                    if (suggestionArr != null)
-                    {
-                        foreach (JObject suggestion in suggestionArr)
-                        {
-                            string label = suggestion["label"].ToString();
-                            Console.WriteLine(label);
-                        }
-
-                    }
+                    
                     if (optionsArr != null)
                     {
                         foreach (JToken option in optionsArr)
