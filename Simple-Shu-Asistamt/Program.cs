@@ -57,7 +57,7 @@ namespace Simple_Shu_Asistamt
             while (userQuery != "0")
             {
 
-                Console.WriteLine("Chat with me :");
+                Console.WriteLine("Chat with me : \n");
                 userQuery = Console.ReadLine();
 
 
@@ -119,18 +119,16 @@ namespace Simple_Shu_Asistamt
                 try
                 {
 
-
+                    resolved = false;
                     for (int i = 0; i < response?["output"]?["generic"]?[0]?["suggestions"]?.Count(); i++)
                     {
                         if (!resolved)
                         {
                             resolved = true;
-                            Console.WriteLine("Select one of the following options");
-                            Console.WriteLine();
+                            Console.WriteLine("Select one of the following options \n");
                         }
                         string lablles = response?["output"]?["generic"]?[0]?["suggestions"]?[i]?["label"].ToString();
-                        Console.WriteLine(lablles);
-                        Console.WriteLine();
+                        Console.WriteLine(lablles + "\n");
                     }
 
                     for (int i = 0; i < response?["output"]?["generic"]?.Count(); i++)
@@ -139,11 +137,24 @@ namespace Simple_Shu_Asistamt
                         if (optionsArray != null)
                         {
                             JArray textsArray = response?["output"]?["generic"]?[i]?["text"] as JArray;
-                            Console.WriteLine("Did this help you?");
+                            int count = 0;
+                            if (!resolved && count !=2)
+                            { 
+                                Console.WriteLine("Please select one of the following options: \n");
+                                resolved = true;
+                            }
                             foreach (JToken option in optionsArray)
                             {
                                 string extractedText = (string)option["label"];
-                                Console.WriteLine(extractedText); // Output: "I have no knowledge" and "I have some knowledge"
+                                if (extractedText.ToLower() == "yes" || extractedText.ToLower() == "no")
+                                {
+                                    count++;
+                                }
+                                if(count == 1)
+                                {
+                                    Console.WriteLine("Did this help you? \n");
+                                }
+                                Console.WriteLine(extractedText +"\n"); // Output: "I have no knowledge" and "I have some knowledge"
                             }
 
                         }
@@ -177,23 +188,14 @@ namespace Simple_Shu_Asistamt
                         {
                             string link = Regex.Match(match.Value, linkPattern).Groups[2].Value;
                             string title = match.Groups[1].Value;
-                            Console.WriteLine(title);
-                            Console.WriteLine(link);
+                            Console.WriteLine(title + "\n");
+                            Console.WriteLine(link + "\n");
+
                         }
                     }
                 }
             }
-            void printLables()
-            {
-                if (lables.Count() != 0)
-                {
-                    Console.WriteLine("Select one of the followwing options");
-                    for (int i = 0; i < lables.Count; i++)
-                    {
-                        Console.WriteLine(lables[i]);
-                    }
-                }
-            }
+          
         }
     }
 }
