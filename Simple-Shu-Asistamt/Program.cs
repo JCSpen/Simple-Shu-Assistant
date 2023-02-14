@@ -57,6 +57,14 @@ namespace Simple_Shu_Asistamt
             while (userQuery != "0")
             {
 
+                //Clears Console and outputs message when exception is found
+                if (overrideReset)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Sorry I did not catch that please try again!");
+                    overrideReset= false;
+                }
+
                 Console.WriteLine("Chat with me : \n");
                 userQuery = Console.ReadLine();
 
@@ -69,15 +77,25 @@ namespace Simple_Shu_Asistamt
                      Text = userQuery
                  }
                  );
-                //JObject output = JObject.Parse(result2.Response);
-                //string txt = (string)output["output"]["generic"][0]["text"];
-                //txt = txt.Replace("\n", "\n").Replace("- ", "");
-                //var ouput = new {result2.Response};  // replace with the actual output
-
-
-
                 // parse the JSON response
                 JObject response = JObject.Parse(result2.Response);
+
+                //Fetch values from response
+                try
+                {
+                    titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+
+
+                    mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+                }
+                //If a value is out of range or not found, the override statement is called
+                catch (Exception e)
+                {
+                    overrideReset = true;
+                }
+                //Finds links by title length
+                if (titleOfText != null && titleOfText.Length > 20) 
+
                 //Console.WriteLine(result2.Response);
                 // extract the main title
 
@@ -95,6 +113,7 @@ namespace Simple_Shu_Asistamt
                 //}
 
                 if (titleOfText != null && titleOfText.Length > 20)
+
                 {
                     int index = titleOfText.IndexOf(':');
 
@@ -107,6 +126,10 @@ namespace Simple_Shu_Asistamt
                 Console.WriteLine(titleOfText);
                 linkSeprater(response);
 
+                //Fetches values from JSON Response
+                try 
+
+
                 //sourceTitles.RemoveAll(s => s.Contains("Is there anything else I can help you with"));
 
                 // print the results
@@ -117,6 +140,7 @@ namespace Simple_Shu_Asistamt
                 //    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
                 //}
                 try
+
                 {
 
                     resolved = false;
@@ -154,7 +178,8 @@ namespace Simple_Shu_Asistamt
                                 {
                                     Console.WriteLine("Did this help you? \n");
                                 }
-                                Console.WriteLine(extractedText +"\n"); // Output: "I have no knowledge" and "I have some knowledge"
+                                // Output: "I have no knowledge" and "I have some knowledge"
+                                Console.WriteLine(extractedText +"\n");
                             }
 
                         }
@@ -174,7 +199,9 @@ namespace Simple_Shu_Asistamt
 
 
             }
-            void linkSeprater(JObject response)
+
+            //Formats links and outputs it with the title
+            void linkSeprater(JObject response) 
             {
                 for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 {
