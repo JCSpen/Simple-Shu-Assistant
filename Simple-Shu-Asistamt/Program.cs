@@ -15,6 +15,8 @@ using System.Reflection.Emit;
 using IBM.Cloud.SDK.Core.Http;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.CompilerServices;
 
 namespace Simple_Shu_Asistamt
 {
@@ -52,11 +54,17 @@ namespace Simple_Shu_Asistamt
             var sessionId = result.Result.SessionId;
             string titleOfText = "";
             string mainTitle = "";
+            bool overrideReset = false;
 
 
             while (userQuery != "0")
             {
-
+                if (overrideReset) //Clears Console and outputs message when exception is found
+                {
+                    Console.Clear();
+                    Console.WriteLine("Sorry I did not catch that please try again!");
+                    overrideReset= false;
+                }
                 Console.WriteLine("Chat with me : \n");
                 userQuery = Console.ReadLine();
 
@@ -81,10 +89,17 @@ namespace Simple_Shu_Asistamt
                 //Console.WriteLine(result2.Response);
                 // extract the main title
 
-                titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+                try //Fetch values from response
+                {
+                    titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
 
 
-                mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+                    mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+                }
+                catch (Exception e) //If a value is out of range or not found, the override statement is called
+                {
+                    overrideReset = true;
+                }
 
                 //for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 //{
@@ -94,7 +109,7 @@ namespace Simple_Shu_Asistamt
                 //    titleOfText = response["output"]["generic"][i]["title"].Value<string>();
                 //}
 
-                if (titleOfText != null && titleOfText.Length > 20)
+                if (titleOfText != null && titleOfText.Length > 20) //Finds links by title length
                 {
                     int index = titleOfText.IndexOf(':');
 
@@ -116,7 +131,7 @@ namespace Simple_Shu_Asistamt
                 //{
                 //    Console.WriteLine(sourceTitles[i] + "\n" + sourceLinks[i]);
                 //}
-                try
+                try //Fetches values from JSON Response
                 {
 
                     resolved = false;
@@ -174,7 +189,7 @@ namespace Simple_Shu_Asistamt
 
 
             }
-            void linkSeprater(JObject response)
+            void linkSeprater(JObject response) //Formats links and outputs it with the title
             {
                 for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 {
