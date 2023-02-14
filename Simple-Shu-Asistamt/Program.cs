@@ -15,6 +15,8 @@ using System.Reflection.Emit;
 using IBM.Cloud.SDK.Core.Http;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text.Json;
+using Microsoft.Win32.SafeHandles;
+using System.Runtime.CompilerServices;
 
 namespace Simple_Shu_Asistamt
 {
@@ -52,11 +54,17 @@ namespace Simple_Shu_Asistamt
             var sessionId = result.Result.SessionId;
             string titleOfText = "";
             string mainTitle = "";
+            bool overrideReset = false;
 
 
             while (userQuery != "0")
             {
-
+                if (overrideReset)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Sorry I did not catch that please try again!");
+                    overrideReset= false;
+                }
                 Console.WriteLine("Chat with me : \n");
                 userQuery = Console.ReadLine();
 
@@ -81,10 +89,17 @@ namespace Simple_Shu_Asistamt
                 //Console.WriteLine(result2.Response);
                 // extract the main title
 
-                titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
+                try
+                {
+                    titleOfText = response?["output"]?["generic"]?[0]?["text"]?.ToString();
 
 
-                mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+                    mainTitle = response?["output"]?["generic"]?[0]?["title"]?.ToString();
+                }
+                catch (Exception e)
+                {
+                    overrideReset = true;
+                }
 
                 //for (int i = 0; i < response["output"]["generic"].Count(); i++)
                 //{
